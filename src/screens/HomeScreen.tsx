@@ -2,26 +2,24 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Note } from '../types';
+import { useNotes } from '../context/NotesContext';
 
-const MOCK_NOTES: Note[] = [
-    { id: '1', title: 'Resolver bug no login', category: 'Bug', content: 'Um app que o usuário possa criar uma lista de jogos favoritos' },
-    { id: '2', title: 'Criar nova tela de perfil', category: 'Feature', content: 'A tela deve conter nome, email e foto do usuário.' },
-    { id: '3', title: 'Ideia para novo projeto', category: 'Ideia', content: 'O botão do Google Auth não está funcionando na versão do Android: 15' },
-  ];
-  
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({navigation}: Props) {
-    const [notes, setNotes] = useState<Note[]>(MOCK_NOTES);
+    const { notes } = useNotes();
 
-    const renderNote = ({item}: {item: Note}) => (
+    const renderNote = ({ item }: { item: Note }) => (
         <TouchableOpacity
             style={styles.noteCard}
             onPress={() => navigation.navigate('NoteDetail', {note: item})}
         >
             <Text style={styles.noteTitle}>{item.title}</Text>
-            <Text style={styles.noteCategory}>{item.category}</Text>
+            <View style={styles.footer}>
+                <Text style={styles.noteCategory}>{item.category}</Text>
+                {item.imageUri && <Text style={styles.icon}>📷</Text>}
+            </View>
         </TouchableOpacity>
     );
 
@@ -60,10 +58,22 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
 
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+
     noteCategory: {
         fontSize: 14,
         color: '#00D8FF',
         marginTop: 5,
+    },
+
+    icon: {
+        fontSize: 16,
+        color: '#fff'
     },
 
     emptyText: {

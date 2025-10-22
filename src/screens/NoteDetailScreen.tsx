@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from "../types";
 
@@ -11,6 +11,10 @@ export default function NoteDetailScreen({ route }: Props) {
 
     return (
         <ScrollView style={styles.container}>
+            {note.imageUri && (
+                <Image source={{ uri: note.imageUri }} style={styles.image} />
+            )}
+
             <View style={styles.header}>
                 <Text style={styles.title}>{note.title}</Text>
                 <View style={styles.badge}>
@@ -29,8 +33,14 @@ const styles = StyleSheet.create({
         padding: 20,
     },
 
+    image: {
+        width: '100%',
+        height: 250,
+        resizeMode: 'cover',
+    },
+
     header: {
-        marginBottom: 20,
+        padding: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#333',
         paddingBottom: 15,
@@ -57,6 +67,7 @@ const styles = StyleSheet.create({
     },
 
     content: {
+        padding: 20,
         fontSize: 18,
         color: '#B3B3B3',
         lineHeight: 28,

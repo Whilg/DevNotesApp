@@ -3,6 +3,7 @@ export type Note = {
     title: string;
     category: 'Bug' | 'Feature' | 'Ideia';
     content: string;
+    imageUri?: string;
 };
 
 export type RootStackParamList = {
