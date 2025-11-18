@@ -1,26 +1,22 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+if (!process.env.EXPO_PUBBLIC_API_KEY) {
+    throw new Error('Chavi da API do Firebase não encontrada. Verifique o arquivo .env')
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyB8V2E1fRTeigFawJ63iPLr8GCUZ3G-FKA",
-  authDomain: "devnotes-a4c7c.firebaseapp.com",
-  projectId: "devnotes-a4c7c",
-  storageBucket: "devnotes-a4c7c.firebasestorage.app",
-  messagingSenderId: "997189456452",
-  appId: "1:997189456452:web:55530f9dc19095f2d22211",
-  measurementId: "G-0Z6SJZ2VNE"
+    apiKey: process.env.EXPO_PUBLIC_API_KEY,
+    authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+    projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+    storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+    messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+    appId: process.env.EXPO_PUBLIC_APP_ID
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
