@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Note } from '../types';
 import { useNotes } from '../context/NotesContext';
@@ -8,13 +8,12 @@ import { useNotes } from '../context/NotesContext';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({navigation}: Props) {
-    const { notes } = useNotes();
+    const { notes, loading } = useNotes();
 
     const renderNote = ({ item }: { item: Note }) => (
         <TouchableOpacity
             style={styles.noteCard}
-            onPress={() => navigation.navigate('NoteDetail', {note: item})}
-        >
+            onPress={() => navigation.navigate('NoteDetail', { noteId: item.id })}>
             <Text style={styles.noteTitle}>{item.title}</Text>
             <View style={styles.footer}>
                 <Text style={styles.noteCategory}>{item.category}</Text>
@@ -22,6 +21,14 @@ export default function HomeScreen({navigation}: Props) {
             </View>
         </TouchableOpacity>
     );
+
+    if (loading && notes.length === 0) {
+        return (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#00D8FF" />
+          </View>
+        );
+      }
 
     return (
         <View style={styles.container}>
@@ -99,4 +106,11 @@ const styles = StyleSheet.create({
         fontSize: 30,
         color: '#121212',
     },
+
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#121212',
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
 })

@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Button, Alert, TouchableOpacity, Image } from "react-native";
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from 'yup';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from "../types";
+import { RootStackParamList, Note } from "../types";
 import * as ImagePicker from 'expo-image-picker';
 import { useNotes } from '../context/NotesContext'
+import { useRoute } from '@react-navigation/native';
 
 const noteSchema = yup.object().shape({
     title: yup.string().required('O título é obrigatório.').min(5, 'O título deve ter no mínimo 5 caracteres.'),
@@ -21,14 +22,28 @@ type FormData = {
 type Props = NativeStackScreenProps<RootStackParamList, 'AddNote'>;
 
 export default function AddNoteScreen({ navigation }: Props) {
-    const { addNote } = useNotes();
+    const { addNote, updateNote } = useNotes();
 
-    const [imageUri, setImageUri] = useState<string | null>(null)
+    const route = useRoute<Props['route']>();
+
+    const noteToEdit = route.params?.noteToEdit;
+    const isEditMode = !!noteToEdit;
+
+    const [imageUri, setImageUri] = useState<string | null>(noteToEdit?.imageUri || null)
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: yupResolver(noteSchema),
-        defaultValues: {title: '', content: ''},
+        defaultValues: {
+            title: noteToEdit?.title || '',
+            content: noteToEdit?.content || '',
+        },
     });
+
+    useEffect(() => {
+        navigation.setOptions({
+            title: isEditMode ? 'Editar Anotação' : 'Nova Anotação'
+        });
+    }, [navigation, isEditMode]);
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -49,15 +64,24 @@ export default function AddNoteScreen({ navigation }: Props) {
         }
     };
 
-    const onSubmit = (data: FormData) => {
-        addNote({
-            title: data.title,
-            content: data.content || '',
-            category: 'Ideia',
-            imageUri: imageUri || undefined,
-        });
-
-        Alert.alert('Sucesso!', 'Sua anotação foi criada');
+    const onSubmit = async (data: FormData) => {
+        if (isEditMode) {
+            const updatedNote: Note = {
+                ...noteToEdit,
+                ...data,
+                imageUri: imageUri || undefined,
+            };
+            await updateNote(updatedNote);
+            Alert.alert('Sucesso!', 'Sua anotação foi atualizada')
+        } else{
+            await addNote({
+                title: data.title,
+                content: data.content || '',
+                category: 'Ideia',
+                imageUri: imageUri || undefined,
+            });
+            Alert.alert('Sucesso!', 'Sua anotação foi criada');
+        }
         navigation.goBack();
     };
 
@@ -107,7 +131,11 @@ export default function AddNoteScreen({ navigation }: Props) {
             )}
 
             <View style={styles.saveButton}>
-                <Button title="Salvar Anotação" onPress={handleSubmit(onSubmit)} color="#00D8FF" />
+                <Button 
+                    title={isEditMode ? "Salvar Alterações" : "Salvar Anotação" }
+                    onPress={handleSubmit(onSubmit)} 
+                    color="#00D8FF"
+                />
             </View>    
         </View>
     );

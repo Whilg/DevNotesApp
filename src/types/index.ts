@@ -9,6 +9,6 @@ export type Note = {
 export type RootStackParamList = {
     Welcome: undefined;
     Home: undefined;
-    AddNote: undefined;
-    NoteDetail: { note: Note };
+    AddNote: { noteToEdit?: Note } | undefined;
+    NoteDetail: { noteId: string };
 };
