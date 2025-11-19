@@ -15,9 +15,7 @@ export default function NoteDetailScreen({ route, navigation }: Props) {
     const note = notes.find((n) => n.id === noteId);
 
     if (!note) {
-        React.useEffect(() => {
-            navigation.goBack();
-        }, []);
+        navigation.goBack();
         return null;
     }
 

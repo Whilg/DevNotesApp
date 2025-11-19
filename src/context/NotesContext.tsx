@@ -48,7 +48,7 @@ export const NotesProvider = ({ children }: { children: ReactNode }) => {
       
       await addDoc(notesCollectionRef, {
         ...newNoteData,
-        imageUri: finalImageUri || undefined 
+        imageUri: finalImageUri || null, 
       });
 
     } catch (error) {
@@ -70,7 +70,7 @@ export const NotesProvider = ({ children }: { children: ReactNode }) => {
       const noteDocRef = doc(db, "notes", updatedNote.id);
       await updateDoc(noteDocRef, {
         ...updatedNote,
-        imageUri: finalImageUri || undefined
+        imageUri: finalImageUri || null
       });
 
     } catch (error) {

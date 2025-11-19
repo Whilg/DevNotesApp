@@ -4,10 +4,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from 'yup';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Picker } from '@react-native-picker/picker';
 import { RootStackParamList, Note } from "../types";
 import * as ImagePicker from 'expo-image-picker';
 import { useNotes } from '../context/NotesContext'
 import { useRoute } from '@react-navigation/native';
+
+const CATEGORY_OPTIONS: ('Bug' | 'Feature' | 'Ideia')[] = ['Ideia', 'Feature', 'Bug'];
 
 const noteSchema = yup.object().shape({
     title: yup.string().required('O título é obrigatório.').min(5, 'O título deve ter no mínimo 5 caracteres.'),
@@ -30,6 +33,10 @@ export default function AddNoteScreen({ navigation }: Props) {
     const isEditMode = !!noteToEdit;
 
     const [imageUri, setImageUri] = useState<string | null>(noteToEdit?.imageUri || null)
+
+    const [selectedCategory, setSelectedCategory] = useState<string>(
+        noteToEdit?.category || CATEGORY_OPTIONS[0]
+      );
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: yupResolver(noteSchema),
@@ -69,20 +76,22 @@ export default function AddNoteScreen({ navigation }: Props) {
             const updatedNote: Note = {
                 ...noteToEdit,
                 ...data,
+                category: selectedCategory as 'Bug' | 'Feature' | 'Ideia',
                 imageUri: imageUri || undefined,
             };
             await updateNote(updatedNote);
             Alert.alert('Sucesso!', 'Sua anotação foi atualizada')
+            navigation.goBack();
         } else{
             await addNote({
                 title: data.title,
                 content: data.content || '',
-                category: 'Ideia',
+                category: selectedCategory as 'Bug' | 'Feature' | 'Ideia',
                 imageUri: imageUri || undefined,
             });
             Alert.alert('Sucesso!', 'Sua anotação foi criada');
+            navigation.navigate('Home')
         }
-        navigation.goBack();
     };
 
     return (
@@ -120,6 +129,23 @@ export default function AddNoteScreen({ navigation }: Props) {
                     />
                 )}
             />
+            
+            <Text style={styles.label}>Categoria</Text>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={selectedCategory}
+                    onValueChange={(itemValue) => setSelectedCategory(itemValue)}
+                    mode="dropdown"
+                    style={styles.picker}
+                    dropdownIconColor="#00D8FF"
+                    itemStyle={styles.pickerItem}
+                >
+                    {CATEGORY_OPTIONS.map((cat) => (
+                        <Picker.Item key={cat} label={cat} value={cat} color="#121212"/>
+                    ))}
+                </Picker>
+            </View>
+
             {errors.content && <Text style={styles.errorText}>{errors.content.message}</Text>}
 
             <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
@@ -163,6 +189,25 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderWidth: 1,
         borderColor: '#333',
+    },
+
+    pickerContainer: {
+        backgroundColor: '#252525',
+        borderRadius: 8,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#333',
+    },
+
+    picker: {
+        height: 50,
+        color: '#fff',
+        width: '100%',
+    },
+
+    pickerItem: {
+        color: '#fff',
+        backgroundColor: '#121212',
     },
 
     textArea: {
