@@ -2,7 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView, Image, Button, Alert } from "react-native";
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from "../types";
-import { useNotes } from '../context/NotesContext'
+import { useNotes } from '../context/NotesContext';
+import { useTheme } from "../context/ThemeContext";
 
 type Props = NativeStackScreenProps<RootStackParamList, 'NoteDetail'>;
 
@@ -11,6 +12,8 @@ export default function NoteDetailScreen({ route, navigation }: Props) {
     const { noteId } = route.params;
 
     const { notes, deleteNote } = useNotes();
+
+    const { theme } = useTheme();
 
     const note = notes.find((n) => n.id === noteId);
 
@@ -42,14 +45,14 @@ export default function NoteDetailScreen({ route, navigation }: Props) {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             {note.imageUri && (
                 <Image source={{ uri: note.imageUri }} style={styles.image} />
             )}
 
             <View style={styles.header}>
-                <Text style={styles.title}>{note.title}</Text>
-                <View style={styles.badge}>
+                <Text style={[styles.title, { color: theme.colors.text }]}>{note.title}</Text>
+                <View style={[styles.badge, { backgroundColor: theme.colors.primary }]}>
                     <Text style={styles.category}>{note.category}</Text>
                 </View>
             </View>
@@ -57,7 +60,7 @@ export default function NoteDetailScreen({ route, navigation }: Props) {
             <Text style={styles.content}>{note.content}</Text>
 
             <View style={styles.buttonContainer}>
-                <Button title="Editar Anotação" onPress={handleEdit} color="#00D8FF" />
+                <Button title="Editar Anotação" onPress={handleEdit} color={theme.colors.primary} />
                 <View style={{ marginVertical: 10 }} />
                 <Button title="Excluir Anotação" onPress={handleDelete} color="#FF4500" />
             </View>
@@ -93,7 +96,6 @@ const styles = StyleSheet.create({
     },
 
     badge: {
-        backgroundColor: '#00D8FF',
         paddingHorizontal: 12,
         paddingVertical: 5,
         borderRadius: 15,

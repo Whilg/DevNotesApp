@@ -1,3 +1,5 @@
+import { ThemeType } from "../constants/themes";
+
 export type Note = {
     id: string;
     title: string;
@@ -11,4 +13,6 @@ export type RootStackParamList = {
     Home: undefined;
     AddNote: { noteToEdit?: Note } | undefined;
     NoteDetail: { noteId: string };
+    Store: undefined;
+    Payment: { themeToBuy: ThemeType };
 };
